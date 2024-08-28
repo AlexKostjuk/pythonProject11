@@ -10,11 +10,22 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import smtplib
 import threading
-
+import sys
 import pythoncom
 
 running = False
 
+
+class RedirectText:
+    def __init__(self, text_widget):
+        self.output = text_widget
+
+    def write(self, string):
+        self.output.insert(tk.END, string)
+        self.output.see(tk.END)
+
+    def flush(self):
+        pass
 
 def authenticate(username, password):
     data = {'username': username, 'password': password}
@@ -34,27 +45,39 @@ def stop_loop():
 def call_function():
     arg1 = entry1.get()
     arg2 = entry2.get()
-    threading.Thread(target=work, args=(arg1, arg2)).start()
+    arg3 = entry3.get()
+    threading.Thread(target=work, args=(arg1, arg2, arg3)).start()
 
 
 def create_gui():
-    global entry1, entry2
+    global entry1, entry2, entry3
     root = tk.Tk()
     root.title("Пример GUI")
 
-    tk.Label(root, text="Аргумент 1:").pack(pady=5)
+    tk.Label(root, text="Login:").pack(pady=5)
     entry1 = tk.Entry(root)
     entry1.pack(pady=5)
 
-    tk.Label(root, text="Аргумент 2:").pack(pady=5)
-    entry2 = tk.Entry(root)
+
+
+    tk.Label(root, text="Password:").pack(pady=5)
+    entry2 = tk.Entry(root, show="*")
     entry2.pack(pady=5)
 
-    call_button = tk.Button(root, text="Вызвать функцию", command=call_function)
+    tk.Label(root, text="Встановити температуру сповіщення:").pack(pady=5)
+    entry3 = tk.Entry(root)
+    entry3.pack(pady=5)
+
+    call_button = tk.Button(root, text="Увімкнути вимірюваня", command=call_function)
     call_button.pack(pady=20)
 
-    stop_button = tk.Button(root, text="Остановить цикл", command=stop_loop)
+    stop_button = tk.Button(root, text="Зупинити вимірюваня", command=stop_loop)
     stop_button.pack(pady=20)
+
+    text_widget = tk.Text(root, wrap='word', height=10, width=50)
+    text_widget.pack(pady=10)
+
+    sys.stdout = RedirectText(text_widget)
 
     root.mainloop()
 
@@ -97,7 +120,7 @@ def compare_and_update_nested_dicts(main_dict1, main_dict2):
     return updated_dict
 
 
-def work(username, password):
+def work(username, password, set_warning):
     global running
     pythoncom.CoInitialize()  # Инициализация COM
     try:
@@ -116,9 +139,9 @@ def work(username, password):
                 if 'CPU Core #4' in main_dict1:
                     alarm = main_dict1['CPU Core #4']['Value']
                     print(alarm)
-                    print(user)
+                    # print(user)
                     datetime_now = datetime.datetime.now()
-                    if alarm > 50 and datetime_madege + timedelta(minutes=5) < datetime_now:
+                    if alarm > int(set_warning) and datetime_madege + timedelta(minutes=5) < datetime_now:
                         datetime_madege = datetime.datetime.now()
                         smtp_server = "smtp.gmail.com"
                         smtp_port = 587
