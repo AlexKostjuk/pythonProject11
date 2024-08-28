@@ -42,6 +42,10 @@ def stop_loop():
     running = False
 
 
+def on_closing():
+    stop_loop()
+    root.destroy()
+
 def call_function():
     arg1 = entry1.get()
     arg2 = entry2.get()
@@ -50,7 +54,7 @@ def call_function():
 
 
 def create_gui():
-    global entry1, entry2, entry3
+    global entry1, entry2, entry3, root
     root = tk.Tk()
     root.title("Пример GUI")
 
@@ -78,6 +82,8 @@ def create_gui():
     text_widget.pack(pady=10)
 
     sys.stdout = RedirectText(text_widget)
+
+    root.protocol("WM_DELETE_WINDOW", on_closing)
 
     root.mainloop()
 
@@ -131,7 +137,7 @@ def work(username, password, set_warning):
         if user:
             running = True
             while running:
-                time.sleep(1)  # Задержка 2 секунды перед доступом к WMI
+                time.sleep(1)
                 main_dict1 = get_all_sensors()
                 main_dict2 = {}
                 main_dict1 = compare_and_update_nested_dicts(main_dict1, main_dict2)
