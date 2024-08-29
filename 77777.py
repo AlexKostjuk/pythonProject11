@@ -56,7 +56,7 @@ def call_function():
 def create_gui():
     global entry1, entry2, entry3, root
     root = tk.Tk()
-    root.title("Пример GUI")
+    root.title("Температура")
 
     tk.Label(root, text="Login:").pack(pady=5)
     entry1 = tk.Entry(root)
