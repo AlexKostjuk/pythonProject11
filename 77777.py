@@ -32,6 +32,7 @@ def authenticate(username, password):
     response = requests.post('http://localhost:8000/api/authenticate/', data=data)
     result = response.json()
     if result['authenticated']:
+        print(result)
         return result
     else:
         return None
